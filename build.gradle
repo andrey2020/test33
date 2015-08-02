@@ -1,0 +1,61 @@
+buildscript {
+    ext {
+        springBootVersion = '1.2.5.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'spring-boot'
+
+run {
+    jvmArgs = ['-Xdebug', '-Xrunjdwp:server=y,transport=dt_socket,address=1111,suspend=n']
+}
+
+
+sourceCompatibility = 1.8
+version = '1.0'
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'SessionExporter', 
+        'Implementation-Version': version
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven { url "http://repository.primefaces.org" }
+}
+
+dependencies {
+    compile 'javax.ejb:ejb-api:3.0'
+    compile 'jboss:jnp-client:4.2.2.GA'
+    compile 'org.jboss.logging:jboss-logging:3.3.0.Final'
+    compile 'jboss:jbossall-client:4.2.2.GA'
+
+
+    compile 'com.google.code.gson:gson:2.3.1'
+
+    
+    compile fileTree(dir: '/home/andrey/NetBeansProjects/DEV/jboss-4.2.2.GA', include: '*.jar')
+    compile 'org.springframework:spring-context:4.2.0.RELEASE'
+    compile group: "org.springframework.boot", name: "spring-boot-starter", version: "${springBootVersion}"
+    compile group: "org.springframework.boot", name: "spring-boot-starter-tomcat", version: "${springBootVersion}"
+    compile group: "org.springframework.boot", name: "spring-boot-starter-aop", version: "${springBootVersion}"
+    
+    compile group: "org.springframework", name: "spring-web", version: "4.2.0.RELEASE"
+	
+    compile group: "org.apache.tomcat.embed", name: "tomcat-embed-core", version: '8.0.24'
+    compile group: "org.apache.tomcat.embed", name: "tomcat-embed-logging-juli", version: '8.0.24'
+    compile group: "org.apache.tomcat.embed", name: "tomcat-embed-jasper", version: '8.0.24'
+	
+    compile group: "org.primefaces", name: "primefaces", version: "5.2"
+    compile group: "com.sun.faces", name: "jsf-api", version: "2.+"
+    compile group: "com.sun.faces", name: "jsf-impl", version: "2.+"
+}

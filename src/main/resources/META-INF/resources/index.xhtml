@@ -1,0 +1,40 @@
+<f:view xmlns="http://www.w3c.org/1999/xhtml"
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:ng="http://xmlns.jcp.org/jsf/passthrough"
+        xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+        <title>#{menuController.title}</title>
+        <style>
+            body {font-size:12px; }
+        </style>
+
+    </h:head>
+    <h:body>
+        <center>
+            <h:form style="width: 600px;">
+                <p:growl id="growl" class="updateble"/>
+                <p:messages id="messages" class="updateble" showDetail="true" autoUpdate="true" closable="true"/>
+                <p:panel header="Session Exporter Service" >
+                    <p:commandButton 
+                        id="stop"                            
+                        actionListener="#{exporterController.stopApp()}"
+                        ajax="true"
+                        value="STOP Service" />
+                </p:panel>
+                <p:panel header="Download Session.zip (#{exporterController.getSessionCount()} sessions available for download)">
+                    <p:commandButton ajax="false"
+                                     value="Start Sessions Exporter"
+                                     actionListener="#{exporterController.exportSessions()}"
+                                     disabled="#{exporterController.getSessionExportStartDisable()}">
+                        <p:fileDownload value="#{exporterController.fileExport}"/>
+                    </p:commandButton>
+
+                </p:panel>
+            </h:form>
+        </center>
+    </h:body>
+</f:view>

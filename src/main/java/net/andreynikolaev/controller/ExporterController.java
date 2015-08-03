@@ -32,7 +32,7 @@ public class ExporterController {
     public void stopApp() {
         Thread stopThread = new Thread(() -> {
             try {
-                Thread.sleep(3000);
+                Thread.sleep(1000);
             } catch (InterruptedException ex) {
                 Logger.getLogger(ExporterController.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -84,16 +84,20 @@ public class ExporterController {
     }
 
     public boolean isServiceAvailible() {
-        return this.serviceAvailible;
+        return this.serviceAvailible && !this.stopFlag;
     }
 
     public void checkRemoteService() {
+        this.fileExport = null;
         String errorMessage = getExporterService().isServiceAvailible();
         this.serviceAvailible = errorMessage == null;
-        if (!this.serviceAvailible) {
+        if (!this.serviceAvailible && !this.stopFlag) {
             setMessage(FacesMessage.SEVERITY_FATAL, errorMessage);
-        } else {
+        } else if(this.serviceAvailible && !this.stopFlag){
             setMessage(getSessionCount() + " sessions available for download.");
+        }
+        if(this.stopFlag){
+            setMessage(FacesMessage.SEVERITY_WARN, "Session Exporter will be shut down!");
         }
     }
 

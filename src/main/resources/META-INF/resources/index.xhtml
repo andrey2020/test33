@@ -18,6 +18,7 @@
 
             function stop() {
                 PF('mainAjaxLoader').hide();
+                updateUpload();
             }
         </script>
     </h:head>
@@ -33,19 +34,21 @@
         <center>
             <h:form style="width: 600px;" class="updateUpload" >
                 <p:messages id="messages"  showDetail="true" autoUpdate="true" closable="false"/>
-                <p:panel styleClass="stopPanel" header="Session Exporter Service" rendered="#{!exporterController.isStopFlag()}">
+                <p:panel styleClass="stopPanel" header="Session Exporter Service">
                     <p:commandButton 
                         id="stop"
-                        styleClass="ajaxTrigger"
+                        onstart="PF('mainAjaxLoader').show();"
+                        oncomplete="PF('mainAjaxLoader').hide();"
                         actionListener="#{exporterController.stopApp()}"
                         ajax="true"
+                        oncomplete="updateUpload();"
                         disabled="#{exporterController.isStopFlag()}"
                         value="STOP Service" />
                 </p:panel>
                 <p:panel header="Download Session" rendered="#{exporterController.isServiceAvailible()}">
                     <p:commandButton styleClass="ajaxTrigger"
                                      id="gen"
-                                     value="Generate"
+                                     value="Export"
                                      actionListener="#{exporterController.exportSessions()}"
                                      ajax="true"
                                      update="@(.downloadButton)"

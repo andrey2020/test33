@@ -18,44 +18,57 @@
 
             function stop() {
                 PF('mainAjaxLoader').hide();
-                updateUpload();
+                loadSystem();
             }
         </script>
     </h:head>
-    <h:body onload="updateUpload();" styleClass="ajaxTrigger" class="mBod">
-        <h:form>
-            <p:remoteCommand name="updateUpload"
+
+<h:body  id="superBody" onload="loadSystem();" style="max-width: 960px; min-width: 960px;">
+        <center >       
+            <h:form>
+
+                
+                <p:remoteCommand name="loadSystem"
+                                 update=":mainOutputPanel, @(.updater)"
+                                 
                              onstart="PF('mainAjaxLoader').show();"
-                             update="@(.updateUpload)"                       
+                                                 
                              actionListener="#{exporterController.checkRemoteService()}"
                              oncomplete="PF('mainAjaxLoader').hide();"
-                             />
-        </h:form>
-        <center>
-            <h:form style="width: 600px;" class="updateUpload" >
+                </p:remoteCommand>
+            </h:form>
+            
+        
+            <p:outputPanel id="mainOutputPanel" layout="block">
+            <h:panelGrid id="mBod" class="mBod"
+                         style="width: 960px;"
+                         >
+       
+  
+            <h:form style="width: 600px;" >
                 <p:messages id="messages"  showDetail="true" autoUpdate="true" closable="false"/>
                 <p:panel styleClass="stopPanel" header="Session Exporter Service">
                     <p:commandButton 
                         id="stop"
-                        onstart="PF('mainAjaxLoader').show();"
-                        oncomplete="PF('mainAjaxLoader').hide();"
+styleClass="updateble ajaxTrigger"
                         actionListener="#{exporterController.stopApp()}"
+update="@(.updateble)"
                         ajax="true"
                         disabled="#{exporterController.isStopFlag()}"
                         value="STOP Service" />
                 </p:panel>
-                <p:panel header="Download Session" rendered="#{exporterController.isServiceAvailible()}">
-                    <p:commandButton styleClass="ajaxTrigger"
+                <p:panel header="Download Sessions" rendered="#{exporterController.isServiceAvailible()}">
+                    <p:commandButton styleClass="updateble ajaxTrigger"
                                      id="gen"
                                      value="Export"
                                      actionListener="#{exporterController.exportSessions()}"
                                      ajax="true"
-                                     update="@(.downloadButton)"
+                                     update="@(.updateble)"
                                      disabled="#{exporterController.getSessionExportStartDisable()}">
 
                     </p:commandButton>
                     <p:commandButton ajax="false"
-                                     styleClass="downloadButton"
+                                     styleClass="updateble"
                                      value="Download"
                                      actionListener="#{exporterController.exportSessions()}"
                                      onclick="PrimeFaces.monitorDownload(start, stop);"
@@ -69,14 +82,16 @@
 
 
             </h:form>
-        </center>
+  </h:panelGrid>
+            </p:outputPanel>
+        
         <p:outputPanel class="updater" >
             <p:blockUI id="mainAjaxLoader" class="mainAjaxLoader" block="@(.mBod)" trigger="@(.ajaxTrigger)" animate="true" widgetVar="mainAjaxLoader">
                 <p:graphicImage value="ajax-loader.gif"/>
             </p:blockUI>
         </p:outputPanel>
 
-
+</center>
 
     </h:body>
 </f:view>

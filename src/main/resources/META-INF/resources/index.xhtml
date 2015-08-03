@@ -11,30 +11,70 @@
         <style>
             body {font-size:12px; }
         </style>
+        <script type="text/javascript">
+            function start() {
+                PF('mainAjaxLoader').show();
+            }
 
+            function stop() {
+                PF('mainAjaxLoader').hide();
+            }
+        </script>
     </h:head>
-    <h:body>
+    <h:body onload="updateUpload();" styleClass="ajaxTrigger" class="mBod">
+        <h:form>
+            <p:remoteCommand name="updateUpload"
+                             onstart="PF('mainAjaxLoader').show();"
+                             update="@(.updateUpload)"                       
+                             actionListener="#{exporterController.checkRemoteService()}"
+                             oncomplete="PF('mainAjaxLoader').hide();"
+                             />
+        </h:form>
         <center>
-            <h:form style="width: 600px;">
-                <p:growl id="growl" class="updateble"/>
-                <p:messages id="messages" class="updateble" showDetail="true" autoUpdate="true" closable="true"/>
-                <p:panel header="Session Exporter Service" >
+            <h:form style="width: 600px;" class="updateUpload" >
+                <p:messages id="messages"  showDetail="true" autoUpdate="true" closable="false"/>
+                <p:panel styleClass="stopPanel" header="Session Exporter Service" rendered="#{!exporterController.isStopFlag()}">
                     <p:commandButton 
-                        id="stop"                            
+                        id="stop"
+                        styleClass="ajaxTrigger"
                         actionListener="#{exporterController.stopApp()}"
                         ajax="true"
+                        disabled="#{exporterController.isStopFlag()}"
                         value="STOP Service" />
                 </p:panel>
-                <p:panel header="Download Session.zip (#{exporterController.getSessionCount()} sessions available for download)">
-                    <p:commandButton ajax="false"
-                                     value="Start Sessions Exporter"
+                <p:panel header="Download Session" rendered="#{exporterController.isServiceAvailible()}">
+                    <p:commandButton styleClass="ajaxTrigger"
+                                     id="gen"
+                                     value="Generate"
                                      actionListener="#{exporterController.exportSessions()}"
+                                     ajax="true"
+                                     update="@(.downloadButton)"
                                      disabled="#{exporterController.getSessionExportStartDisable()}">
-                        <p:fileDownload value="#{exporterController.fileExport}"/>
+
+                    </p:commandButton>
+                    <p:commandButton ajax="false"
+                                     styleClass="downloadButton"
+                                     value="Download"
+                                     actionListener="#{exporterController.exportSessions()}"
+                                     onclick="PrimeFaces.monitorDownload(start, stop);"
+                                     disabled="#{exporterController.getSessionExportDownloadDisable()}">
+                        <p:fileDownload value="#{exporterController.fileExport}" />
                     </p:commandButton>
 
+                    <div></div>
+
                 </p:panel>
+
+
             </h:form>
         </center>
+        <p:outputPanel class="updater" >
+            <p:blockUI id="mainAjaxLoader" class="mainAjaxLoader" block="@(.mBod)" trigger="@(.ajaxTrigger)" animate="true" widgetVar="mainAjaxLoader">
+                <p:graphicImage value="ajax-loader.gif"/>
+            </p:blockUI>
+        </p:outputPanel>
+
+
+
     </h:body>
 </f:view>

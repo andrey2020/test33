@@ -5,10 +5,12 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.faces.application.FacesMessage;
+import javax.faces.application.FacesMessage.Severity;
 import javax.faces.context.FacesContext;
 
 import net.andreynikolaev.service.ExporterService;
 import net.andreynikolaev.WebApplication;
+import org.primefaces.context.RequestContext;
 import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.StreamedContent;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,8 @@ public class ExporterController {
     private ExporterService exporterService;
 
     private transient StreamedContent fileExport;
+    private boolean serviceAvailible;
+    private boolean stopFlag;
 
     /**
      *
@@ -34,8 +38,8 @@ public class ExporterController {
             }
             WebApplication.stopApp();
         });
-        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Session Exporter will be shut down"));
-
+        setMessage(FacesMessage.SEVERITY_WARN, "Session Exporter will be shut down!");
+        this.stopFlag = true;
         stopThread.start();
 
     }
@@ -44,13 +48,22 @@ public class ExporterController {
      *
      */
     public void exportSessions() {
+
         String fileName = "Sessions_" + getCurenDate() + ".zip";
-        fileExport = new DefaultStreamedContent(getExporterService().getAllSessionAsZipInputStream(), "application/zip", fileName);
-        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("The file: " + fileName + " was generated."));
+        this.fileExport = new DefaultStreamedContent(getExporterService().getAllSessionAsZipInputStream(), "application/zip", fileName);
+        if (getExporterService().getErrorMessage() != null) {
+            setMessage(FacesMessage.SEVERITY_ERROR, getExporterService().getErrorMessage());
+            fileExport = null;
+        } else {
+            setMessage("The file: " + fileName + " was generated.");
+        }
+
     }
 
     public StreamedContent getFileExport() {
-        return fileExport;
+        StreamedContent result = this.fileExport;
+        this.fileExport = null;
+        return result;
     }
 
     public boolean getSessionExportStartDisable() {
@@ -63,16 +76,49 @@ public class ExporterController {
     }
 
     public ExporterService getExporterService() {
-        return exporterService;
+        return this.exporterService;
     }
 
     public void setExporterService(ExporterService exporterService) {
         this.exporterService = exporterService;
     }
 
+    public boolean isServiceAvailible() {
+        return this.serviceAvailible;
+    }
+
+    public void checkRemoteService() {
+        String errorMessage = getExporterService().isServiceAvailible();
+        this.serviceAvailible = errorMessage == null;
+        if (!this.serviceAvailible) {
+            setMessage(FacesMessage.SEVERITY_FATAL, errorMessage);
+        } else {
+            setMessage(getSessionCount() + " sessions available for download.");
+        }
+    }
+
+    private void setMessage(Severity severity, String message) {
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(severity, "", message));
+    }
+
+    private void setMessage(String message) {
+        setMessage(FacesMessage.SEVERITY_INFO, message);
+    }
+
     private String getCurenDate() {
         String result = new SimpleDateFormat("dd_MMM_yyyy_HH_mm_ss").format(new Date());
-
         return result;
+    }
+
+    public boolean getSessionExportDownloadDisable() {
+        return this.fileExport == null;
+    }
+
+    public void setStopFlag() {
+        this.stopFlag = true;
+    }
+
+    public boolean isStopFlag() {
+        return this.stopFlag;
     }
 }
